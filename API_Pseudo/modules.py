@@ -21,7 +21,10 @@ def textAnalysis(text):
     # Checking frequency
     frequency = countFreq(tokens)
 
-    # Analysis
+    # Analysis (key terms, frequeny terms)
     analysis = analyze(tokens)
 
-    return analysis
+    # Summarize
+    summary = summarize(tokens)
+
+    return analysis, summary
