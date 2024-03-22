@@ -1,29 +1,16 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+import pymongo
+import bcrypt
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'secret'  # Temporary key
 jwt = JWTManager(app)
 
-# Sample database of users
-users = {
-    'me': {
-        'password': 'password',
-    }
-}
-
-# User registration endpoint
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    if username in users:
-        return jsonify({'message': 'User already exists'}), 400
-
-    users[username] = {'password': password}
-    return jsonify({'message': 'User registered successfully'}), 201
+# Connect to MongoDB
+client = pymongo.MongoClient("mongodb://localhost:27017")
+db = client["documentanalysis"]
+users_collection = db["users"]
 
 # User login endpoint
 @app.route('/api/login', methods=['POST'])
@@ -32,11 +19,20 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    if username not in users or users[username]['password'] != password:
-        return jsonify({'message': 'Invalid username or password'}), 401
+    # Check if username exists in the database
+    user = users_collection.find_one({"username": username})
 
-    access_token = create_access_token(identity=username)
-    return jsonify({'access_token': access_token}), 200
+    if user:
+        # Check if the password matches
+        if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+            # Password matches, generate access token
+            access_token = create_access_token(identity=username)
+            print("Access Token:", access_token)
+            return jsonify({'access_token': access_token}), 200
+        else:
+            return jsonify({'message': 'Invalid password'}), 401
+    else:
+        return jsonify({'message': 'User does not exist'}), 401
 
 # Protected endpoint
 @app.route('/api/protected', methods=['GET'])
