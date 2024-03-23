@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, decode_token
 import pymongo
+import fitz
 
 app = Flask(__name__)
 
@@ -34,6 +35,10 @@ def get_username_from_token(access_token):
         print(f"Error decoding token: {str(e)}")
         return None
     
+# Function to check if a document with the same username and filename already exists
+def document_exists(username, filename):
+    return bool(documents_collection.find_one({"username": username, "filename": filename}))
+
 # File upload endpoint
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
@@ -61,21 +66,44 @@ def upload_file():
         # Secure filename to prevent directory traversal attacks
         filename = secure_filename(file.filename)
         
-        # Get the username associated with the access token (You need to implement this)
+        # Get the username associated with the access token
         username = get_username_from_token(access_token)
         
-        # Read the file contents as a string
-        file_contents = file.read().decode('utf-8')
-
-        # Insert the document into the MongoDB collection
-        document = {
-            "username": username,
-            "filename": filename,
-            "file_contents": file_contents
-        }
-        documents_collection.insert_one(document)
+        # Check if document with the same filename already exists for the user
+        if document_exists(username, filename):
+            return jsonify({'error': 'File with the same filename already exists for the user'}), 400
         
-        return jsonify({'message': 'File uploaded successfully', 'filename': filename}), 200
+        if file.filename.lower().endswith(".txt"):
+            # Read the file contents as a string
+            # Handles .txt files
+            file_contents = file.read().decode('utf-8')
+            
+            # Insert the document into the MongoDB collection
+            document = {
+                "username": username,
+                "filename": filename,
+                "file_contents": file_contents
+            }
+            documents_collection.insert_one(document)
+            
+            return jsonify({'message': 'File uploaded successfully', 'filename': filename}), 200
+        elif file.filename.lower().endswith(".pdf"):
+            # Handles .pdf files
+            text = ""
+            doc = fitz.open(stream=file.read(), filetype="pdf")
+
+            for page_num in range(len(doc)):
+                page = doc.load_page(page_num)
+                text += page.get_text()
+            # Insert the document into the MongoDB collection
+            document = {
+                "username": username,
+                "filename": filename,
+                "file_contents": text
+            }
+            documents_collection.insert_one(document)
+            
+            return jsonify({'message': 'PDF file uploaded successfully', 'filename': filename}), 200
     else:
         return jsonify({'error': 'Invalid file format'}), 400
 
