@@ -31,3 +31,6 @@ Clear navigation and straightforward functionalities make it easy for users to u
 
 Usage:
 Initially the user is greeted with 3 options, 1 to register, 2 to login and 3 to exit the application. If the user chooses to register, they can create their username and password which will be hashed and recorded in the MongoDB database. Each username must be unique or an error will be presented. Once the user is able to register, they can press 2 to login with their credentials. Once logged in, they can upload documents which will be stored under their account. Once the user has documents in the database, they can press 2 to analyze any documents that they have uploaded. The user will be presented with a summary, keywords, and online articles that they might be interested in reading. The user can logout by entering 3 and another subsequent 3 will exit the application.
+
+Workflow:
+The Github workflow dockers the entire application and runs both apis (authenticate and upload) then runs main.py. It will not do anything since the application expects user input. The dockerfile will dockerize the start_services.apy which starts both apis and then main.py.
