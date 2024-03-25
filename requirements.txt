@@ -5,8 +5,6 @@ charset-normalizer==2.0.12
 ci-info==0.2.0
 click==8.0.4
 configobj==5.0.8
-configparser==5.2.0
-dataclasses==0.8
 decorator==4.4.2
 etelemetry==0.2.2
 filelock==3.4.1
