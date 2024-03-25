@@ -1,0 +1,24 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build -t proj2 .
+    - name: Running authenticate api
+      run: docker run proj2 python authenticate_api.py
+    - name: Running uploader api
+      run: docker run proj2 python uploader_api.py
+    - name: Running main.py
+      run: docker run proj2 python main.py
