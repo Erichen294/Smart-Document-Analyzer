@@ -3,6 +3,8 @@ import pymongo
 import bcrypt
 import database
 import summarizer
+import ingester
+import output_gen
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017")
@@ -71,11 +73,9 @@ def main():
                         upload_document(access_token)
                     elif inner_choice == '2':
                         file_name = input("Enter file name: ")
-                        summary, return_val = summarizer.summarize_document(file_name, username)
-                        if return_val:
-                            print("Summary: ", summary)
-                        else:
-                            print(summary)
+                        summary, return_val, keywords = summarizer.summarize_document(file_name, username)
+                        urls = ingester.search_articles(keywords)
+                        output_gen.output_gen(summary, return_val, keywords, urls)
                     elif inner_choice == '3':
                         break
                     else:
