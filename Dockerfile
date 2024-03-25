@@ -21,4 +21,4 @@ COPY . /app/
 EXPOSE 5000 5001
 
 # Command to run the API services
-CMD ["python", "uploader_api.py", "authenticate_api.py", "main.py"]
+CMD ["python", "start_services.py"]
