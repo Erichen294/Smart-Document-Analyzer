@@ -37,7 +37,6 @@ def allowed_file(filename):
 def get_username_from_token(access_token):
     try:
         decoded_token = decode_token(access_token)
-        print("Decoded Token:", decoded_token)
         username = decoded_token['sub']
         return username
     except Exception as e:
@@ -110,7 +109,6 @@ def upload_file():
     # Extract the token from the 'Authorization' header
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(' ')[1]
-    print("Access Token:", access_token)
 
     # Check if the POST request has the file part
     if 'document' not in request.files:

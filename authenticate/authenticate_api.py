@@ -27,7 +27,6 @@ def login():
         if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             # Password matches, generate access token
             access_token = create_access_token(identity=username)
-            print("Access Token:", access_token)
             return jsonify({'access_token': access_token}), 200
         else:
             return jsonify({'message': 'Invalid password'}), 401

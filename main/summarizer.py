@@ -3,11 +3,51 @@ from bson.objectid import ObjectId
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import re
 from collections import Counter
+import queue
+import threading
+import time
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017")
 db = client["documentanalysis"]
 documents_collection = db["documents"]
+
+# Initialize the summarization queue
+summarization_queue = queue.Queue()
+
+# Lock to ensure thread safety when accessing the queue
+queue_lock = threading.Lock()
+
+def summarize_worker():
+    while True:
+        if not summarization_queue.empty():
+            # Pop the summarization task from the queue
+            with queue_lock:
+                document_id, username = summarization_queue.get()
+            
+            # Perform summarization
+            document = documents_collection.find_one({"_id": ObjectId(document_id), "username": username})
+            if document:
+                file_contents = document.get("file_contents", "")
+                summary, return_val, keywords = summarize_document(file_contents)
+                if return_val:
+                    # Update the document with the summary and keywords
+                    documents_collection.update_one(
+                        {"_id": ObjectId(document_id)},
+                        {"$set": {"summary": summary, "keywords": keywords}}
+                    )
+                else:
+                    print(f"Failed to summarize document with ID: {document_id}")
+            else:
+                print(f"Document with ID {document_id} not found.")
+        else:
+            # Sleep briefly before checking the queue again
+            time.sleep(0.1)
+
+# Start summarization worker thread
+summarization_thread = threading.Thread(target=summarize_worker)
+summarization_thread.daemon = True
+summarization_thread.start()
 
 def extract_keywords(text):
     """
