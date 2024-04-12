@@ -5,6 +5,7 @@ import database
 import summarizer
 import ingester
 import output_gen
+import summarize_webpage
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017")
@@ -66,7 +67,8 @@ def main():
                     print("\nOptions:")
                     print("1. Upload Document")
                     print("2. Analyze document")
-                    print("3. Logout")
+                    print("3. Analyze webpage")
+                    print("4. Logout")
                     inner_choice = input("Enter your choice: ")
 
                     if inner_choice == '1':
@@ -77,6 +79,15 @@ def main():
                         urls = ingester.search_articles(keywords)
                         output_gen.output_gen(summary, return_val, keywords, urls)
                     elif inner_choice == '3':
+                        web_url = input("Enter web url: ")
+                        webpage_summary, return_val = summarize_webpage.summarize_webpage(web_url)
+                        print(webpage_summary)
+                        keywords = summarizer.extract_keywords(webpage_summary)
+                        print(keywords)
+                        # TODO: add better algorithm to find keywords and try to fix google too many url requests error
+                        #urls = ingester.search_articles(keywords)
+                        #output_gen.output_gen(webpage_summary, return_val, keywords)
+                    elif inner_choice == '4':
                         break
                     else:
                         print("Invalid choice. Please try again.")

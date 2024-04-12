@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoTokenizer, AutoModelWithLMHead
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -52,21 +52,24 @@ def summarize_webpage(url, sentences_count=4):
     Returns:
     summary (string): Summary of the webpage
     """
-    # Fetch text content from the webpage
-    text = fetch_text_from_webpage(url)
+    try:
+        # Fetch text content from the webpage
+        text = fetch_text_from_webpage(url)
 
-    # Initialize tokenizer
-    tokenizer = AutoTokenizer.from_pretrained('t5-base')                        
-    model = AutoModelWithLMHead.from_pretrained('t5-base', return_dict=True)
+        # Initialize tokenizer
+        tokenizer = AutoTokenizer.from_pretrained('t5-base')                        
+        model = AutoModelForSeq2SeqLM.from_pretrained('t5-base', return_dict=True)
 
-    # Tokenize
-    inputs = tokenizer.encode("summarize: " + text, return_tensors='pt', max_length=512, truncation=True)
+        # Tokenize
+        inputs = tokenizer.encode("summarize: " + text, return_tensors='pt', max_length=512, truncation=True)
 
-    # Create summary
-    summary_ids = model.generate(inputs, max_length=150, min_length=80, length_penalty=5., num_beams=2) 
-    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-    
-    # Capitalize summary
-    summary = capitalize_sentences(summary)
-    return summary
-
+        # Create summary
+        summary_ids = model.generate(inputs, max_length=150, min_length=80, length_penalty=5., num_beams=2) 
+        summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+        
+        # Capitalize summary
+        summary = capitalize_sentences(summary)
+        return summary, True
+    except Exception as e:
+        print(f"Error occurred during summarization: {e}")
+        return None, False
