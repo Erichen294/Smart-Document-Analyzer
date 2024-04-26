@@ -1,34 +1,34 @@
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from nltk.corpus import stopwords
+import re
+from collections import Counter
 
 def extract_keywords(text):
+    """
+    Extracts keywords from the text.
+
+    Parameters:
+    text (string): The input text
+
+    Returns:
+    keywords (list): List of extracted keywords
+    """
+    # Define regex pattern for tokenization
+    pattern = r"\b\w+\b"
+
     # Tokenize the text
-    words = text.lower().split()
+    words = re.findall(pattern, text.lower())
 
-    # Filter out stopwords
-    stop_words = set(stopwords.words('english'))
+    # Filter out common words (stopwords)
+    stopwords = set(["the", "and", "or", "in", "on", "at", "to", "a", "an", "is", "are", 
+                     "was", "were", "for", "of", "with", "by", "as", "this", "that", "these", 
+                     "those", "it", "its", "they", "them", "he", "she", "his", "her", "their", 
+                     "we", "our", "us", "you", "your", "i", "my", "me", "mine", "from", "areas",
+                     "which"])
+    filtered_words = [word for word in words if word not in stopwords]
 
-    # Calculate TF-IDF scores
-    count_vectorizer = CountVectorizer()
-    term_counts = count_vectorizer.fit_transform([text])
-    tfidf_transformer = TfidfTransformer()
-    tfidf_matrix = tfidf_transformer.fit_transform(term_counts)
+    # Calculate word frequencies
+    word_freq = Counter(filtered_words)
 
-    # Get the feature names (i.e., words)
-    feature_names = count_vectorizer.get_feature_names()
+    # Get the most common keywords
+    keywords = [word for word, freq in word_freq.most_common(5)] 
 
-    # Get the TF-IDF scores for the words
-    tfidf_scores = tfidf_matrix.toarray().flatten()
-
-    # Combine words with their TF-IDF scores
-    word_tfidf_pairs = list(zip(feature_names, tfidf_scores))
-
-    # Sort words by TF-IDF scores in descending order
-    sorted_word_tfidf_pairs = sorted(word_tfidf_pairs, key=lambda x: x[1], reverse=True)
-
-    # Get the top 5 keywords
-    keywords = [pair[0] for pair in sorted_word_tfidf_pairs[:5]]
-
-    keywords_without_stopwords = [word for word in keywords if word not in stop_words]
-
-    return keywords_without_stopwords
+    return keywords
