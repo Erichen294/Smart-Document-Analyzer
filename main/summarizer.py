@@ -8,7 +8,6 @@ import threading
 import time
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from nltk.corpus import stopwords
-import nltk
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017")

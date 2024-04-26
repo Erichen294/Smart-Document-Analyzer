@@ -1,5 +1,4 @@
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-import nltk
 from nltk.corpus import stopwords
 
 def extract_keywords(text):
