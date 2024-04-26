@@ -6,6 +6,9 @@ from collections import Counter
 import queue
 import threading
 import time
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from nltk.corpus import stopwords
+import nltk
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017")
@@ -50,36 +53,47 @@ summarization_thread.daemon = True
 summarization_thread.start()
 
 def extract_keywords(text):
-    """
-    Extracts keywords from the text.
-
-    Parameters:
-    text (string): The input text
-
-    Returns:
-    keywords (list): List of extracted keywords
-    """
-    # Define regex pattern for tokenization
-    pattern = r"\b\w+\b"
-
     # Tokenize the text
-    words = re.findall(pattern, text.lower())
+    words = text.lower().split()
 
-    # Filter out common words (stopwords)
-    stopwords = set(["the", "and", "or", "in", "on", "at", "to", "a", "an", "is", "are", 
-                     "was", "were", "for", "of", "with", "by", "as", "this", "that", "these", 
-                     "those", "it", "its", "they", "them", "he", "she", "his", "her", "their", 
-                     "we", "our", "us", "you", "your", "i", "my", "me", "mine", "from", "areas",
-                     "which"])
-    filtered_words = [word for word in words if word not in stopwords]
+    # Filter out stopwords
+    stop_words = set(stopwords.words('english'))
 
-    # Calculate word frequencies
-    word_freq = Counter(filtered_words)
+    # Calculate TF-IDF scores
+    count_vectorizer = CountVectorizer()
+    term_counts = count_vectorizer.fit_transform([text])
+    tfidf_transformer = TfidfTransformer()
+    tfidf_matrix = tfidf_transformer.fit_transform(term_counts)
 
-    # Get the most common keywords
-    keywords = [word for word, freq in word_freq.most_common(5)] 
+    # Get the feature names (i.e., words)
+    feature_names = count_vectorizer.get_feature_names()
 
-    return keywords
+    # Get the TF-IDF scores for the words
+    tfidf_scores = tfidf_matrix.toarray().flatten()
+
+    # Combine words with their TF-IDF scores
+    word_tfidf_pairs = list(zip(feature_names, tfidf_scores))
+
+    # Sort words by TF-IDF scores in descending order
+    sorted_word_tfidf_pairs = sorted(word_tfidf_pairs, key=lambda x: x[1], reverse=True)
+
+    # Get the top 5 keywords
+    keywords = [pair[0] for pair in sorted_word_tfidf_pairs[:5]]
+
+    stopwords_list = [
+    "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves",
+    "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their",
+    "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was",
+    "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and",
+    "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between",
+    "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off",
+    "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both",
+    "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too",
+    "very", "s", "t", "can", "will", "just", "don", "should", "now"
+]
+    keywords_without_stopwords = [word for word in keywords if word not in stopwords_list]
+
+    return keywords_without_stopwords
 
 def capitalize_sentences(summary):
     """

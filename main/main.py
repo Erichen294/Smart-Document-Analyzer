@@ -85,6 +85,7 @@ def main():
                         keywords = summarizer.extract_keywords(webpage_summary)
                         print(keywords)
                         # TODO: add better algorithm to find keywords and try to fix google too many url requests error
+                        # Update: am using TLK
                         #urls = ingester.search_articles(keywords)
                         #output_gen.output_gen(webpage_summary, return_val, keywords)
                     elif inner_choice == '4':
