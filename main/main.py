@@ -77,17 +77,15 @@ def main():
                         file_name = input("Enter file name: ")
                         summary, return_val, keywords = summarizer.summarize_document(file_name, username)
                         urls = ingester.search_articles(keywords)
-                        output_gen.output_gen(summary, return_val, keywords, urls)
+                        tone = summarizer.analyze_tone(summary)
+                        output_gen.output_gen(summary, return_val, keywords, urls, tone)
                     elif inner_choice == '3':
                         web_url = input("Enter web url: ")
                         webpage_summary, return_val = summarize_webpage.summarize_webpage(web_url)
-                        print(webpage_summary)
                         keywords = summarizer.extract_keywords(webpage_summary)
-                        print(keywords)
-                        # TODO: add better algorithm to find keywords and try to fix google too many url requests error
-                        # Update: am using TLK
-                        #urls = ingester.search_articles(keywords)
-                        #output_gen.output_gen(webpage_summary, return_val, keywords)
+                        urls = ingester.search_articles(keywords)
+                        tone = summarizer.analyze_tone(webpage_summary)
+                        output_gen.output_gen(webpage_summary, return_val, keywords, urls, tone)
                     elif inner_choice == '4':
                         break
                     else:

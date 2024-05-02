@@ -6,8 +6,10 @@ from collections import Counter
 import queue
 import threading
 import time
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
+import string
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017")
@@ -52,47 +54,95 @@ summarization_thread.daemon = True
 summarization_thread.start()
 
 def extract_keywords(text):
+    # Remove punctuation
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    
     # Tokenize the text
-    words = text.lower().split()
-
-    # Filter out stopwords
+    tokens = text.lower().split()
+    
+    # Remove stopwords
     stop_words = set(stopwords.words('english'))
+    conjunctions = [
+    "also",
+    "and",
+    "but",
+    "or",
+    "nor",
+    "for",
+    "yet",
+    "so",
+    "although",
+    "because",
+    "since",
+    "unless",
+    "until",
+    "while",
+    "after",
+    "before",
+    "if",
+    "than",
+    "whether",
+    "that",
+    "as",
+    "once",
+    "whereas",
+    "provided",
+    "even",
+    "though",
+    "while",
+    "where",
+    "whenever",
+    "wherever",
+    "however",
+    "moreover",
+    "nevertheless",
+    "therefore",
+    "otherwise",
+    "hence",
+    "accordingly",
+    "consequently",
+    "thus",
+    "similarly",
+    "likewise",
+    "instead",
+    "alternatively",
+    "regardless",
+    "otherwise",
+    "nonetheless",
+    "besides",
+    "furthermore",
+    "on the other hand",
+    "in addition",
+    "indeed"
+    ]
+    stop_words.update(conjunctions)
+    tokens = [word for word in tokens if word not in stop_words]
+    
+    # Join tokens back into text
+    cleaned_text = ' '.join(tokens)
+    
+    # Initialize TfidfVectorizer
+    vectorizer = TfidfVectorizer()
 
-    # Calculate TF-IDF scores
-    count_vectorizer = CountVectorizer()
-    term_counts = count_vectorizer.fit_transform([text])
-    tfidf_transformer = TfidfTransformer()
-    tfidf_matrix = tfidf_transformer.fit_transform(term_counts)
+    # Fit the vectorizer to the cleaned text
+    tfidf_matrix = vectorizer.fit_transform([cleaned_text])
 
-    # Get the feature names (i.e., words)
-    feature_names = count_vectorizer.get_feature_names()
+    # Get the feature names (words) from the vectorizer
+    feature_names = vectorizer.get_feature_names()
 
-    # Get the TF-IDF scores for the words
-    tfidf_scores = tfidf_matrix.toarray().flatten()
+    # Get the TF-IDF scores for each word
+    tfidf_scores = tfidf_matrix.toarray()[0]
 
-    # Combine words with their TF-IDF scores
-    word_tfidf_pairs = list(zip(feature_names, tfidf_scores))
+    # Create a dictionary to store words and their corresponding TF-IDF scores
+    word_tfidf = dict(zip(feature_names, tfidf_scores))
 
-    # Sort words by TF-IDF scores in descending order
-    sorted_word_tfidf_pairs = sorted(word_tfidf_pairs, key=lambda x: x[1], reverse=True)
+    # Sort the words by their TF-IDF scores in descending order
+    sorted_words_tfidf = sorted(word_tfidf.items(), key=lambda x: x[1], reverse=True)
 
-    # Get the top 5 keywords
-    keywords = [pair[0] for pair in sorted_word_tfidf_pairs[:5]]
+    # Get the top 5 keywords with the highest TF-IDF scores
+    top_keywords = [word for word, _ in sorted_words_tfidf[:5]]
 
-    stopwords_list = [
-    "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves",
-    "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their",
-    "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was",
-    "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and",
-    "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between",
-    "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off",
-    "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both",
-    "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too",
-    "very", "s", "t", "can", "will", "just", "don", "should", "now"
-]
-    keywords_without_stopwords = [word for word in keywords if word not in stopwords_list]
-
-    return keywords_without_stopwords
+    return top_keywords
 
 def capitalize_sentences(summary):
     """
@@ -154,3 +204,18 @@ def summarize_document(file_name, username):
     keywords = extract_keywords(document_contents)
 
     return summary, True, keywords
+
+def analyze_tone(text):
+    # Initialize VADER sentiment analyzer
+    analyzer = SentimentIntensityAnalyzer()
+
+    # Analyze sentiment
+    sentiment_scores = analyzer.polarity_scores(text)
+
+    # Determine sentiment label
+    if sentiment_scores['compound'] >= 0.05:
+        return 'This text is positive'
+    elif sentiment_scores['compound'] <= -0.05:
+        return 'This text is negative'
+    else:
+        return 'This text is neutral'
