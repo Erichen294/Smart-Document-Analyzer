@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,23 +16,14 @@
             margin-top: 50px;
         }
 
-        form {
+        .button-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-top: 20px;
         }
 
-        input[type="text"], input[type="password"] {
-            width: 300px;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        button {
+        .button-container button {
             padding: 10px 20px;
             margin-top: 10px;
             font-size: 16px;
@@ -44,26 +35,26 @@
             transition: background-color 0.3s;
         }
 
-        button:hover {
+        .button-container button:hover {
             background-color: #0056b3; /* Darker blue color on hover */
         }
 
-        .error-message {
-            color: red;
-            margin-top: 10px;
+        .logout-button {
+            background-color: #dc3545; /* Red color */
+        }
+
+        .logout-button:hover {
+            background-color: #bd2130; /* Darker red color on hover */
         }
     </style>
 </head>
 <body>
-    <h1>Login</h1>
-    <form action="/login" method="post">
-        <input type="text" name="username" placeholder="Username"><br>
-        <input type="password" name="password" placeholder="Password"><br>
-        <button type="submit">Login</button>
-    </form>
-
-    {% if message %}
-    <p class="error-message">{{ message }}</p>
-    {% endif %}
+    <h1>Dashboard</h1>
+    <div class="button-container">
+        <button onclick="window.location.href='/upload_document'">Upload Document</button>
+        <button onclick="window.location.href='/analyze_document'">Analyze Document</button>
+        <button onclick="window.location.href='/analyze_webpage'">Analyze Webpage</button>
+        <button class="logout-button" onclick="window.location.href='/'">Logout</button>
+    </div>
 </body>
 </html>

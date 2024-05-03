@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Expose ports for the APIs (adjust as needed)
-EXPOSE 5000 5001
+EXPOSE 5000 5001 5002
 
 # Command to run the API services
 CMD ["python", "start_services.py"]

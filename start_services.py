@@ -19,7 +19,7 @@ authenticate_api = subprocess.Popen(["python", "authenticate_api.py"])
 os.chdir("/app/main")
 
 # Start main.py
-main_api = subprocess.Popen(["python", "main.py"])
+main_api = subprocess.Popen(["python", "app.py"])
 
 # Wait for APIs to finish
 uploader_api.wait()

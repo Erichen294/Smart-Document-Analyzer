@@ -63,57 +63,13 @@ def extract_keywords(text):
     # Remove stopwords
     stop_words = set(stopwords.words('english'))
     conjunctions = [
-    "also",
-    "and",
-    "but",
-    "or",
-    "nor",
-    "for",
-    "yet",
-    "so",
-    "although",
-    "because",
-    "since",
-    "unless",
-    "until",
-    "while",
-    "after",
-    "before",
-    "if",
-    "than",
-    "whether",
-    "that",
-    "as",
-    "once",
-    "whereas",
-    "provided",
-    "even",
-    "though",
-    "while",
-    "where",
-    "whenever",
-    "wherever",
-    "however",
-    "moreover",
-    "nevertheless",
-    "therefore",
-    "otherwise",
-    "hence",
-    "accordingly",
-    "consequently",
-    "thus",
-    "similarly",
-    "likewise",
-    "instead",
-    "alternatively",
-    "regardless",
-    "otherwise",
-    "nonetheless",
-    "besides",
-    "furthermore",
-    "on the other hand",
-    "in addition",
-    "indeed"
+        "also", "and", "but", "or", "nor", "for", "yet", "so", "although", "because",
+        "since", "unless", "until", "while", "after", "before", "if", "than", "whether",
+        "that", "as", "once", "whereas", "provided", "even", "though", "while", "where",
+        "whenever", "wherever", "however", "moreover", "nevertheless", "therefore",
+        "otherwise", "hence", "accordingly", "consequently", "thus", "similarly",
+        "likewise", "instead", "alternatively", "regardless", "otherwise", "nonetheless",
+        "besides", "furthermore", "on the other hand", "in addition", "indeed", "sometimes"
     ]
     stop_words.update(conjunctions)
     tokens = [word for word in tokens if word not in stop_words]
@@ -141,6 +97,9 @@ def extract_keywords(text):
 
     # Get the top 5 keywords with the highest TF-IDF scores
     top_keywords = [word for word, _ in sorted_words_tfidf[:5]]
+    
+    # Remove duplicates by converting to set and then back to list
+    top_keywords = list(set(top_keywords))
 
     return top_keywords
 
@@ -194,7 +153,7 @@ def summarize_document(file_name, username):
     inputs = tokenizer.encode("summarize: " + document_contents, return_tensors='pt', max_length=512, truncation=True)
 
     # Create summary
-    summary_ids = model.generate(inputs, max_length=150, min_length=80, length_penalty=5., num_beams=2) 
+    summary_ids = model.generate(inputs, max_length=500, min_length=80, length_penalty=5., num_beams=2) 
     summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
     
     # Capitalize summary

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyze Webpage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 50px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            font-size: 16px;
+            background-color: #007bff; /* Blue color */
+            color: #fff; /* White text */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Darker blue color on hover */
+        }
+
+        .result {
+            margin-top: 50px;
+        }
+
+        ul {
+            text-align: left; 
+        }
+
+        ul li {
+            margin: 0 auto; 
+            width: fit-content;
+            display: table;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analyze Webpage</h1>
+    <form action="/analyze_webpage" method="post">
+        <input type="text" name="webpage_url" placeholder="Enter Webpage URL" required><br>
+        <button type="submit">Analyze</button>
+    </form>
+
+    <a href="/dashboard"><button>Back to Dashboard</button></a>
+
+    {% if summary %}
+    <div class="result">
+        <h2>Summary</h2>
+        <p>{{ summary }}</p>
+    </div>
+    {% endif %}
+
+    {% if keywords %}
+    <div class="result">
+        <h2>Keywords</h2>
+        <ul>
+            {% for keyword in keywords %}
+            <li>{{ keyword }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if urls %}
+    <div class="result">
+        <h2>URLs</h2>
+        <ul>
+            {% for url in urls %}
+            <li>{{ url }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if tone %}
+    <div class="result">
+        <h2>Tone Analysis</h2>
+        <p>{{ tone }}</p>
+    </div>
+    {% endif %}
+</body>
+</html>

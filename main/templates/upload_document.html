@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Upload Document</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,7 +23,7 @@
             margin-top: 20px;
         }
 
-        input[type="text"], input[type="password"] {
+        input[type="file"] {
             width: 300px;
             padding: 10px;
             margin-top: 10px;
@@ -47,23 +47,18 @@
         button:hover {
             background-color: #0056b3; /* Darker blue color on hover */
         }
-
-        .error-message {
-            color: red;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
-    <h1>Login</h1>
-    <form action="/login" method="post">
-        <input type="text" name="username" placeholder="Username"><br>
-        <input type="password" name="password" placeholder="Password"><br>
-        <button type="submit">Login</button>
-    </form>
-
+    <h1>Upload Document</h1>
     {% if message %}
-    <p class="error-message">{{ message }}</p>
+        <p>{{ message }}</p>
     {% endif %}
+    <form action="/upload_document" method="post" enctype="multipart/form-data">
+        <input type="file" name="document" accept=".pdf,.doc,.docx,.txt" required><br>
+        <button type="submit">Upload</button>
+    </form>
+    <br>
+    <a href="/dashboard"><button>Back to Dashboard</button></a>
 </body>
 </html>
