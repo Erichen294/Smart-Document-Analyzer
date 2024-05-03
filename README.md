@@ -1,5 +1,8 @@
 Smart Document Analyzer
 
+Demo:
+[Here is the demo](https://drive.google.com/file/d/1XA_w_OxkK675Vwb0jqmGM-r0FmX6HBqb/view?usp=sharing)
+
 Description:
 The Smart Document Analyzer is a versatile tool designed to enhance document management and analysis processes. It provides functionalities for uploading, summarizing, and analyzing documents, empowering users to extract valuable insights from their textual content efficiently.
 
