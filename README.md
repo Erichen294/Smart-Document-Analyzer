@@ -14,7 +14,7 @@ Users can upload various types of documents, including text files (e.g., .txt), 
 Uploaded documents are securely stored in the system for further analysis.
 
 3. Document Summarization:
-The system utilizes advanced natural language processing (NLP) techniques to generate concise summaries of uploaded documents.
+The system utilizes advanced natural language processing (NLP) techniques to generate concise summaries of uploaded documents and webpage urls.
 Summaries provide users with a quick overview of the main points and key insights contained within the documents.
 
 4. Keyword Extraction:
@@ -30,7 +30,31 @@ The application features an intuitive user interface for seamless interaction.
 Clear navigation and straightforward functionalities make it easy for users to upload, analyze, and manage documents.
 
 Usage:
-Initially the user is greeted with 3 options, 1 to register, 2 to login and 3 to exit the application. If the user chooses to register, they can create their username and password which will be hashed and recorded in the MongoDB database. Each username must be unique or an error will be presented. Once the user is able to register, they can press 2 to login with their credentials. Once logged in, they can upload documents which will be stored under their account. Once the user has documents in the database, they can press 2 to analyze any documents that they have uploaded. The user will be presented with a summary, keywords, and online articles that they might be interested in reading. The user can logout by entering 3 and another subsequent 3 will exit the application.
+1. Upon accessing the application, users are presented with options to register or login.
+2. To register, users can click on the "Register" button and fill out the registration form with a unique username and password.
+3. After registration, users can log in using their credentials.
+4. Once logged in, users are redirected to the dashboard, where they can access various functionalities.
+5. The dashboard allows users to upload documents, analyze uploaded documents, analyze web pages, or logout.
+6. The application will return a summary, keywords, relevant URLs to online articles related to the content, and the tone of the text.
 
 Workflow:
-The Github workflow dockers the entire application and runs both apis (authenticate and upload) then runs main.py. It will not do anything since the application expects user input. The dockerfile will dockerize the start_services.apy which starts both apis and then main.py.
+The application is built using Flask and consists of several routes:
+1. /: The main route where users can register, login, or exit the application.
+2. /register: Allows users to register for an account.
+3. /login: Handles user authentication and redirects to the dashboard upon successful login.
+4. /dashboard: Provides access to various functionalities like uploading documents and analyzing them or inputting an url and analyzing the text.
+5. /upload_document: Allows users to upload documents.
+6. /analyze_document: Summarizes and analyzes uploaded documents.
+7. /analyze_webpage: Summarizes and analyzes web pages by providing a URL.
+The app.py file defines the Flask application and contains all the route handlers for different functionalities.
+
+Instructions for Developers
+1. Clone the repository to your local environment.
+2. Install the required dependencies specified in requirements.txt.
+3. Ensure that MongoDB is installed and running locally or update the database configuration to point to the desired MongoDB instance.
+4. Run the Flask application by executing the app.py file.
+5. Run the uploader API and authenticate API inside /uploader and /authenticate respectively.
+6. Access the application in your web browser at http://localhost:5002.
+7. Develop additional features, enhance existing functionalities, or contribute to the project as needed.
+8. Before committing any changes, ensure that all code follows the project's coding standards and conventions.
+9. Create a pull request for review and integration of your changes into the main branch.
